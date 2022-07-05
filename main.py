@@ -17,6 +17,16 @@ class Tile:
             [self.pil_img.getpixel((e, ((2-y)*f)+e)) for y in range(3)],
         ]
 
+class Cell:
+    def __init__(self, x, y, tiles:list[Tile], side=32):
+        self.x = x
+        self.y = y
+        self.side = side
+        self.tiles = tiles
+        self.options = tiles.copy()
+        self.current = None
+
+
 class WFC:
     def __init__(self, tiles:list):
         self.screen = pygame.display.set_mode((640, 480))
