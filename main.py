@@ -34,6 +34,8 @@ class WFC:
         self.height = self.screen.get_height()
         self.width = self.screen.get_width()
         self.tiles = tiles
+        self.side = 32
+        self.grid = [[Cell(x, y, self.tiles, self.side) for x in range(self.width//self.side)] for y in range(self.height//self.side)]
 
         self.clock = pygame.time.Clock()
         self.running = True
@@ -44,6 +46,11 @@ class WFC:
                 if event.type == pygame.QUIT:
                     self.running = False
             self.screen.fill((0, 0, 0))
+
+            for row in self.grid:
+                for cell in row:
+                    if cell.current is None:
+                        pygame.draw.rect(self.screen, (255, 255, 255), (cell.x*self.side, cell.y*self.side, self.side, self.side), 2)
 
             self.clock.tick(60)
             pygame.display.update()
