@@ -14,8 +14,8 @@ class Tile:
         self.sides = [
             [self.pil_img.getpixel(((x*f)+e, e)) for x in range(3)],
             [self.pil_img.getpixel(((2*f)+e, (y*f)+e)) for y in range(3)],
-            [self.pil_img.getpixel((((2-x)*f)+e, (2*f)+e)) for x in range(3)],
-            [self.pil_img.getpixel((e, ((2-y)*f)+e)) for y in range(3)],
+            [self.pil_img.getpixel((((x)*f)+e, (2*f)+e)) for x in range(3)],
+            [self.pil_img.getpixel((e, ((y)*f)+e)) for y in range(3)],
         ]
 
 class Cell:
@@ -29,7 +29,7 @@ class Cell:
 
 
 class WFC:
-    def __init__(self, tiles:list):
+    def __init__(self, tiles:list[Tile]):
         self.screen = pygame.display.set_mode((640, 480))
         pygame.display.set_caption("Wave Function Collapse")
         self.height = self.screen.get_height()
@@ -41,6 +41,30 @@ class WFC:
         self.clock = pygame.time.Clock()
         self.running = True
 
+    def get_options(self, tile: Tile, available:list[Tile], side:int):
+        tile_color = tile.sides[side]
+        ret_list = []
+        for _tile in available:
+            av_color = _tile.sides[(side+2)%4]
+            if tile_color == av_color:
+                ret_list.append(_tile)
+        return ret_list
+    
+    def fix_neighbors(self, x, y):
+        thing = self.grid[y][x]
+        neighbours = [
+            self.grid[y-1][x] if y > 0 else None,
+            self.grid[y][x+1] if x < (self.width//self.side)-1 else None,
+            self.grid[y+1][x] if y < (self.height//self.side)-1 else None,
+            self.grid[y][x-1] if x > 0 else None
+        ]
+        for index, cell in enumerate(neighbours):
+            if cell:
+                if cell.current is None:
+                    new = self.get_options(thing.current, cell.options, index)
+                    cell.options = new
+
+
     def run(self):
         while self.running:
             for event in pygame.event.get():
@@ -49,10 +73,14 @@ class WFC:
             self.screen.fill((0, 0, 0))
 
             flat_grid = [x for y in self.grid for x in y if x.current is None]
+            #sort flat_grid by length of options
+            flat_grid.sort(key=lambda x: len(x.options))
             if len(flat_grid) >= 1:
-                chosen_one = random.choice(flat_grid)
-                o = random.choice(chosen_one.options)
-                chosen_one.current = o
+                chosen = flat_grid[0]
+                o = random.choice(chosen.options)
+                chosen.options.remove(o)
+                chosen.current = o
+                self.fix_neighbors(chosen.x, chosen.y)
 
             for row in self.grid:
                 for cell in row:
