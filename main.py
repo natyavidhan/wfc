@@ -3,13 +3,13 @@ from PIL import Image
 import random
 
 class Tile:
-    def __init__(self, img, side=32, rotate=0):
+    def __init__(self, img, side, rotate=0):
         img = pygame.image.load(img)
-        img = pygame.transform.scale(img, (side, side))
-        self.img = pygame.transform.rotate(img, rotate*90)
+        img = pygame.transform.rotate(img, rotate*90)
+        self.pil_img = Image.frombytes("RGB", (img.get_width(), img.get_width()), pygame.image.tostring(img, "RGB"))
+        self.img = pygame.transform.scale(img, (side, side))
         self.len = side
-        self.pil_img = Image.frombytes("RGB", (side, side), pygame.image.tostring(self.img, "RGB"))
-        f = side//3
+        f = img.get_width()//3
         e = f//2
         self.sides = [
             [self.pil_img.getpixel(((x*f)+e, e)) for x in range(3)],
@@ -29,13 +29,13 @@ class Cell:
 
 
 class WFC:
-    def __init__(self, tiles:list[Tile]):
+    def __init__(self, tiles:list[Tile], side=32):
         self.screen = pygame.display.set_mode((640, 480))
         pygame.display.set_caption("Wave Function Collapse")
         self.height = self.screen.get_height()
         self.width = self.screen.get_width()
         self.tiles = tiles
-        self.side = 32
+        self.side = side
         self.grid = [[Cell(x, y, self.tiles, self.side) for x in range(self.width//self.side)] for y in range(self.height//self.side)]
 
         self.clock = pygame.time.Clock()
@@ -64,16 +64,20 @@ class WFC:
                     new = self.get_options(thing.current, cell.options, index)
                     cell.options = new
 
+    def restart(self):
+        self.grid = [[Cell(x, y, self.tiles, self.side) for x in range(self.width//self.side)] for y in range(self.height//self.side)]
 
     def run(self):
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        self.restart()
             self.screen.fill((0, 0, 0))
 
             flat_grid = [x for y in self.grid for x in y if x.current is None]
-            #sort flat_grid by length of options
             flat_grid.sort(key=lambda x: len(x.options))
             if len(flat_grid) >= 1:
                 chosen = flat_grid[0]
@@ -84,9 +88,7 @@ class WFC:
 
             for row in self.grid:
                 for cell in row:
-                    if cell.current is None:
-                        pygame.draw.rect(self.screen, (255, 255, 255), (cell.x*self.side, cell.y*self.side, self.side, self.side), 2)
-                    else:
+                    if cell.current:
                         self.screen.blit(cell.current.img, (cell.x*self.side, cell.y*self.side))
 
             self.clock.tick(60)
@@ -94,17 +96,18 @@ class WFC:
 
 if __name__ == '__main__':
     tiles = []
-    tiles.append(Tile('assets/roads/0.png'))
-    tiles.append(Tile('assets/roads/1.png'))
-    tiles.append(Tile('assets/roads/1.png', rotate=1))
-    tiles.append(Tile('assets/roads/2.png'))
-    tiles.append(Tile('assets/roads/2.png', rotate=1))
-    tiles.append(Tile('assets/roads/2.png', rotate=2))
-    tiles.append(Tile('assets/roads/2.png', rotate=3))
-    tiles.append(Tile('assets/roads/3.png'))
-    tiles.append(Tile('assets/roads/3.png', rotate=1))
-    tiles.append(Tile('assets/roads/3.png', rotate=2))
-    tiles.append(Tile('assets/roads/3.png', rotate=3))
-    tiles.append(Tile('assets/roads/4.png'))
-    instance = WFC(tiles)
+    side_=10
+    tiles.append(Tile('assets/roads/0.png', side_))
+    tiles.append(Tile('assets/roads/1.png', side_))
+    tiles.append(Tile('assets/roads/1.png', side_, rotate=1))
+    tiles.append(Tile('assets/roads/2.png', side_))
+    tiles.append(Tile('assets/roads/2.png', side_, rotate=1))
+    tiles.append(Tile('assets/roads/2.png', side_, rotate=2))
+    tiles.append(Tile('assets/roads/2.png', side_, rotate=3))
+    tiles.append(Tile('assets/roads/3.png', side_))
+    tiles.append(Tile('assets/roads/3.png', side_, rotate=1))
+    tiles.append(Tile('assets/roads/3.png', side_, rotate=2))
+    tiles.append(Tile('assets/roads/3.png', side_, rotate=3))
+    tiles.append(Tile('assets/roads/4.png', side_))
+    instance = WFC(tiles, side_)
     instance.run()
