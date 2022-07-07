@@ -3,7 +3,7 @@ from PIL import Image
 import random
 
 class Tile:
-    def __init__(self, img, side, rotate=0):
+    def __init__(self, img, side=32, rotate=0, sides=None):
         img = pygame.image.load(img)
         img = pygame.transform.rotate(img, rotate*90)
         self.pil_img = Image.frombytes("RGB", (img.get_width(), img.get_width()), pygame.image.tostring(img, "RGB"))
@@ -16,7 +16,7 @@ class Tile:
             [self.pil_img.getpixel(((2*f)+e, (y*f)+e)) for y in range(3)],
             [self.pil_img.getpixel((((x)*f)+e, (2*f)+e)) for x in range(3)],
             [self.pil_img.getpixel((e, ((y)*f)+e)) for y in range(3)],
-        ]
+        ] if not sides else sides
 
 class Cell:
     def __init__(self, x, y, tiles:list[Tile], side=32):
