@@ -8,6 +8,9 @@ Wave Fuction Collapse python implementation, with Auto-Color detection
 
 ## to run the simulation
 - run main.py: `python main.py`
+            OR
+- change directory to examples: `cd examples`
+- run better_roads.py: `python better_roads.py`
 
 ## to export image
 - change directory to wfc_PIL: `cd wfc_PIL`
