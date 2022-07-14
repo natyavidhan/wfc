@@ -77,14 +77,17 @@ class WFC:
                         self.restart()
             self.screen.fill((0, 0, 0))
 
-            flat_grid = [x for y in self.grid for x in y if x.current is None]
-            flat_grid.sort(key=lambda x: len(x.options))
-            if len(flat_grid) >= 1:
-                chosen = flat_grid[0]
-                o = random.choice(chosen.options)
-                chosen.options.remove(o)
-                chosen.current = o
-                self.fix_neighbors(chosen.x, chosen.y)
+            try:
+                flat_grid = [x for y in self.grid for x in y if x.current is None]
+                flat_grid.sort(key=lambda x: len(x.options))
+                if len(flat_grid) >= 1:
+                    chosen = flat_grid[0]
+                    o = random.choice(chosen.options)
+                    chosen.options.remove(o)
+                    chosen.current = o
+                    self.fix_neighbors(chosen.x, chosen.y)
+            except:
+                self.restart()
 
             for row in self.grid:
                 for cell in row:
