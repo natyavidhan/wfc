@@ -99,7 +99,7 @@ class WFC:
 
 if __name__ == '__main__':
     tiles = []
-    side_=10
+    side_=16
     tiles.append(Tile('assets/roads/0.png', side_))
     tiles.append(Tile('assets/roads/1.png', side_))
     tiles.append(Tile('assets/roads/1.png', side_, rotate=1))

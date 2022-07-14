@@ -17,6 +17,9 @@ Wave Fuction Collapse python implementation, with Auto-Color detection
 - run main.py: `python main.py`
 - the image is exported as output.png in the same folder
 
+## extra
+- press r to restart the simulation
+
 # How?
 In auto-color detection, with the help of Pillow, the program gets 3 points from each side of a particular tile, then stores them as side value instead of pre-defining it
 
